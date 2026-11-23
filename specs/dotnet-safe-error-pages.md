@@ -75,10 +75,10 @@ Affected people:
 ### Constraints
 
 - **Allowed paths:**
-  - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/Web.config`
-  - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/Views/Shared/`:
+    - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/Web.config`
+    - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/Views/Shared/`:
     **new** files only. The existing `_Layout.cshtml` must not change.
-  - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/BookCatalog.Web.csproj`:
+    - `legacy-src/dotnet-bookcatalog/shared-legacy-app/src/BookCatalog.Web/BookCatalog.Web.csproj`:
     only added `<Content Include="Views\Shared\..." />` items for the new files.
 - **Primary validation command:** run
   `msbuild BookCatalog.sln -restore -p:Configuration=Release` from the source
@@ -93,10 +93,10 @@ Affected people:
 - **Dependencies:** add no NuGet package, assembly reference, binding redirect,
   or `packages/` change.
 - **Data and security:**
-  - Do not add secrets or real data.
-  - Error pages must not read the database, the model, `ViewBag`, request
+    - Do not add secrets or real data.
+    - Error pages must not read the database, the model, `ViewBag`, request
     headers, query values, or exception data.
-  - Add no logging or telemetry (decision D4).
+    - Add no logging or telemetry (decision D4).
 
 ### Exclusions (out of scope)
 
@@ -222,17 +222,20 @@ diagnostic-marker search for each probe.
 
 ### AC-10: Diff stays in scope
 
-- **Given** an implementation branch containing the approved specification
-  commit identified in the issue's human review record
-- **When** a reviewer compares that commit with the implementation branch and
-  inspects staged, unstaged, and untracked changes
+- **Given** an implementation branch based on the implementation-baseline
+  commit identified in the issue's execution boundary
+- **When** a reviewer compares that baseline with the implementation branch
+  and inspects staged, unstaged, and untracked changes
 - **Then** only allowed implementation paths appear. The csproj diff contains
   only added `Content Include` items for the new `Views/Shared/` files. No
   generated `App_Data` database files are committed.
-- **Verification:** Set `$approvedSpecCommit` to the approved commit SHA from
-  the issue. Verify it is an ancestor with
-  `git merge-base --is-ancestor $approvedSpecCommit HEAD`; stop if it is not.
-  Review `git diff --name-only $approvedSpecCommit HEAD`,
+- **Verification:** The issue must identify both the reviewed specification
+  commit and a separate implementation-baseline commit containing its approval
+  record. Before implementation, review the specification diff between those
+  commits and stop if it contains changes beyond the approval record. Set
+  `$implementationBaseline` to the baseline SHA from the issue. Verify it is
+  an ancestor with `git merge-base --is-ancestor $implementationBaseline HEAD`;
+  stop if it is not. Review `git diff --name-only $implementationBaseline HEAD`,
   `git diff --name-only`, `git diff --cached --name-only`, and
   `git status --short --untracked-files=all`, along with the actual diffs.
 
@@ -262,15 +265,15 @@ diagnostic-marker search for each probe.
 ### Evidence
 
 - **Current behavior:**
-  - `src/BookCatalog.Web/Web.config` sets `customErrors mode="Off"` and
+    - `src/BookCatalog.Web/Web.config` sets `customErrors mode="Off"` and
     `compilation debug="true"`.
-  - `src/BookCatalog.Web/App_Start/FilterConfig.cs:RegisterGlobalFilters`
+    - `src/BookCatalog.Web/App_Start/FilterConfig.cs:RegisterGlobalFilters`
     adds `HandleErrorAttribute`, but no `Error` view exists.
-  - `src/BookCatalog.Web/Controllers/BooksController.cs:Details/Edit/Delete`
+    - `src/BookCatalog.Web/Controllers/BooksController.cs:Details/Edit/Delete`
     return `HttpNotFound()`.
-  - `src/BookCatalog.Web/App_Start/RouteConfig.cs:RegisterRoutes` defines a
+    - `src/BookCatalog.Web/App_Start/RouteConfig.cs:RegisterRoutes` defines a
     single default route.
-  - `src/BookCatalog.Web/Views/Web.config` blocks direct requests to
+    - `src/BookCatalog.Web/Views/Web.config` blocks direct requests to
     `Views/`.
 - **Existing tests:** None found. The solution has no test project
   (`legacy-src/dotnet-bookcatalog/AGENTS.md`).
@@ -353,7 +356,11 @@ Stop and request human guidance if:
       criteria, validation command, exclusions, risks, and stop conditions.
 - **Reviewer:** @mahmedGos
 - **Approval date:** 2026-11-23
-- **Approved specification commit:** `783d891545c4fffebaa38360018bc4bb4810ba95`
+- **Approved specification commit:** `314588995a50569e6451ada56f10f843589e9f7c`
+
+The previous specification revision at
+`783d891545c4fffebaa38360018bc4bb4810ba95` was recorded as reviewed by
+@mahmedGos on 2026-11-23. This AC-10 revision was approved on 2026-11-23.
 
 Change **Status** to `Approved` only after the checkbox is selected and the
 reviewer, date, and commit fields are complete. Planning approval authorizes
